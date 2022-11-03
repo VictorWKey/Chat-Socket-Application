@@ -34,7 +34,6 @@ const validateJWT = async (req = request, res = response, next) => {
         next();
 
     } catch ( err ) {
-        console.log(err);
         
         res.status(401).json({
             msg: 'JWT Invalid '
