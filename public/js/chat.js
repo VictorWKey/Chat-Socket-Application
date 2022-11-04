@@ -4,13 +4,28 @@ const ulUsers = document.querySelector('#ulUsers');
 const ulMsg = document.querySelector('#ulMsg');
 const btnLogout = document.querySelector('#btnLogout');
 
+let user = null;
+let socket = null;
+
+txtMsg.addEventListener('keyup', ({ keyCode }) => {
+
+    const message = txtMsg.value;
+    const uid = txtUid.value;
+
+
+    if(keyCode !== 13) { return; }
+    if(message.length === 0) { return; }
+
+    socket.emit('send-message', { message, uid });
+
+    txtMsg.value = '';
+
+})
+
 
 const url = window.location.hostname.includes('localhost') 
                  ? 'http://localhost:8080/api/auth' 
                  : 'https://rest-server-crs.herokuapp.com/api/auth';
-
-let user = null;
-let socket = null;
 
 const showUsers = (users = '') => {
     let usersHtml = '';
@@ -27,8 +42,6 @@ const showUsers = (users = '') => {
     })
 
     ulUsers.innerHTML = usersHtml;
-
-
 }
 
 const connectSocket = async () => {
@@ -38,8 +51,8 @@ const connectSocket = async () => {
         }
     });
 
-    socket.on('receive-msg', () => {
-        // TODO:
+    socket.on('receive-msg', (payload) => {
+        console.log(payload);        
     })
 
     socket.on('active-users', showUsers)
