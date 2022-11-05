@@ -2,10 +2,12 @@ const txtUid = document.querySelector('#txtUid');
 const txtMsg = document.querySelector('#txtMsg');
 const ulUsers = document.querySelector('#ulUsers');
 const ulMsg = document.querySelector('#ulMsg');
+const ulPrivateMsg = document.querySelector('#ulPrivateMsg');
 const btnLogout = document.querySelector('#btnLogout');
 
 let user = null;
 let socket = null;
+let privateMessagesHtml = ''; // Dependiendo de cual socket la tome, este variable puede tener diferentes valores
 
 txtMsg.addEventListener('keyup', ({ keyCode }) => {
 
@@ -44,6 +46,44 @@ const showUsers = (users = '') => {
     ulUsers.innerHTML = usersHtml;
 }
 
+const showMessages = (messages = '') => {
+    let messagesHtml = '';
+
+    messages.forEach( ({name, message}) => {
+        messagesHtml += `
+        <li>
+            <p>
+                <span class="text-primary"> ${name}:  </span>
+                <span> ${message} </span>
+            </p>
+        </li>
+        `
+    })
+
+    ulMsg.innerHTML = messagesHtml;
+}
+
+
+
+const showPrivateMessages = (privateMessage = '') => {
+    
+
+    const {from, message} = privateMessage;
+
+    privateMessagesHtml += `
+    <li>
+        <p>
+            <span class="text-danger"> ${from}:  </span>
+            <span> ${message} </span>
+        </p>
+    </li>
+    `
+
+    console.log(privateMessage);
+
+    ulPrivateMsg.innerHTML = privateMessagesHtml;
+}
+
 const connectSocket = async () => {
     socket = io({
         'extraHeaders': {
@@ -51,15 +91,11 @@ const connectSocket = async () => {
         }
     });
 
-    socket.on('receive-msg', (payload) => {
-        console.log(payload);        
-    })
+    socket.on('receive-msg', showMessages);
 
-    socket.on('active-users', showUsers)
+    socket.on('active-users', showUsers);
 
-    socket.on('private-msg', () => {
-        // TODO:
-    })
+    socket.on('private-msg', showPrivateMessages);
 };
 
 const validateJwtOfLS = async () => {
